@@ -1,23 +1,32 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "simple-rest-api"
+        IMAGE_TAG = "1.0"
+    }
+
     stages {
-        stage('Build') {
+        stage('Build Maven Project') {
             steps {
                 sh 'mvn clean package'
             }
         }
-        stage('Docker Build') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("simple-rest-api:1.0")
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
-        stage('Deploy to Kubernetes') {
+
+        stage('Run Docker Container') {
             steps {
-                sh 'kubectl apply -f k8s/deployment.yaml'
-                sh 'kubectl apply -f k8s/service.yaml'
+                script {
+                    sh 'docker stop simple-rest-api || true && docker rm simple-rest-api || true'
+                    sh 'docker run -d -p 8080:8080 --name simple-rest-api simple-rest-api:1.0'
+                }
             }
         }
     }
