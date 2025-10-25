@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-rest-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-rest-api
+  template:
+    metadata:
+      labels:
+        app: simple-rest-api
+    spec:
+      containers:
+        - name: simple-rest-api
+          image: simple-rest-api:1.0
+          ports:
+            - containerPort: 8080
